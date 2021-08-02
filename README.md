@@ -1,3 +1,25 @@
+# Setup for triton
+
+#### Local working copy to verify Conda environment
+1) create conda env for python 2.8
+2) `conda install cudatoolkit=10.2`
+3) `pip install -r requirements.txt`
+4) git clone mish-cuda with `git clone https://github.com/JunnYu/mish-cuda`
+5) enter mish-cuda repo and run `python setup.py build install`
+6) test with webcam using `python detect.py --weights weights/yolov4-p5.pt --source 0` or image `python detect.py --weights weights/yolov4-p5.pt --source inference/images/dog.jpg --save-img`
+
+#### Configurations for triton
+
+1) pack conda environment with `conda-pack`
+2) edit `triton/models/yolov4/config.pbtxt`
+```
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "/yolov4_env.tar.gz"} <---- this should be the address you will mount it on the docker container
+}
+```
+3) run triton server by going to `triton/` and running `bash run_server.sh`
+
 # YOLOv4-large
 
 This is the implementation of "[Scaled-YOLOv4: Scaling Cross Stage Partial Network](https://arxiv.org/abs/2011.08036)" using PyTorch framwork.

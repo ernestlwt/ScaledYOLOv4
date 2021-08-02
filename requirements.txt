@@ -1,0 +1,8 @@
+opencv-python
+tqdm
+matplotlib
+pyyaml
+scipy
+torch
+torchvision
+conda-pack
