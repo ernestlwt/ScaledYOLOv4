@@ -39,9 +39,7 @@ with httpclient.InferenceServerClient("localhost:8000") as client:
     dataset = LoadImages('./inference/images/dog.jpg', img_size=640)
 
     for _, img, _, _ in dataset:
-        print(np.shape(img))
         img = np.ascontiguousarray(img)
-        print(np.shape(img))
 
         in_0 = np.asarray(img)
         inputs = [
@@ -56,6 +54,5 @@ with httpclient.InferenceServerClient("localhost:8000") as client:
 
         response = client.infer(model_name, inputs, request_id=str(1), outputs=outputs)
 
-        print("hi")
         result = str(response.as_numpy("OUTPUT0")).split("'")[1]
         print("Result: " + result)
