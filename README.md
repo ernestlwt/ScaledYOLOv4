@@ -1,7 +1,7 @@
 # Setup for triton
 
 #### Local working copy to verify Conda environment
-1) create conda env for python 2.8
+1) create conda env for python 3.8
 2) `conda install cudatoolkit=10.2`
 3) `pip install -r requirements.txt`
 4) git clone mish-cuda with `git clone https://github.com/JunnYu/mish-cuda`
@@ -11,6 +11,7 @@
 #### Configurations for triton
 
 1) pack conda environment with `conda-pack`
+3) build image with `triton/Dockerfile`
 2) edit `triton/models/yolov4/config.pbtxt`
 ```
 parameters: {
@@ -18,7 +19,7 @@ parameters: {
   value: {string_value: "/yolov4_env.tar.gz"} <---- this should be the address you will mount it on the docker container
 }
 ```
-3) run triton server by going to `triton/` and running `bash run_server.sh`
+3) run triton server by going to `triton/` and running `bash run_server.sh`. make sure to change container names accordingly
 
 # YOLOv4-large
 
