@@ -6,3 +6,5 @@ scipy
 torch
 torchvision
 conda-pack
+nvidia-pyindex
+tritonclient[all]

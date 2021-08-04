@@ -21,6 +21,10 @@ parameters: {
 ```
 3) run triton server by going to `triton/` and running `bash run_server.sh`. make sure to change container names accordingly
 
+#### Using the triton server
+1) activate the conda environment the last 2 packages inside `requirements.txt` are required to run the triton client(`nvidia-pyindex`, `tritonclient[all]`)
+2) run the client script with `python client.py`
+
 # YOLOv4-large
 
 This is the implementation of "[Scaled-YOLOv4: Scaling Cross Stage Partial Network](https://arxiv.org/abs/2011.08036)" using PyTorch framwork.
