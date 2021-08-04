@@ -36,23 +36,20 @@ from utils.datasets import LoadImages
 model_name = "yolov4"
 
 with httpclient.InferenceServerClient("localhost:8000") as client:
-    dataset = LoadImages('./inference/images/dog.jpg', img_size=640)
+    img = cv2.imread('./inference/images/dog.jpg')
 
-    for _, img, _, _ in dataset:
-        img = np.ascontiguousarray(img)
+    in_0 = np.asarray(img)
+    inputs = [
+        httpclient.InferInput("INPUT0", in_0.shape, np_to_triton_dtype(in_0.dtype))
+    ]
 
-        in_0 = np.asarray(img)
-        inputs = [
-            httpclient.InferInput("INPUT0", in_0.shape, np_to_triton_dtype(in_0.dtype))
-        ]
+    inputs[0].set_data_from_numpy(in_0)
 
-        inputs[0].set_data_from_numpy(in_0)
+    outputs = [
+        httpclient.InferRequestedOutput("OUTPUT0")
+    ]
 
-        outputs = [
-            httpclient.InferRequestedOutput("OUTPUT0")
-        ]
+    response = client.infer(model_name, inputs, request_id=str(1), outputs=outputs)
 
-        response = client.infer(model_name, inputs, request_id=str(1), outputs=outputs)
-
-        result = str(response.as_numpy("OUTPUT0")).split("'")[1]
-        print("Result: " + result)
+    result = str(response.as_numpy("OUTPUT0"))
+    print("Result: " + result)

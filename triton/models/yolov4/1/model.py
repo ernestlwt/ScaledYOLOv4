@@ -39,7 +39,7 @@ import torch.backends.cudnn as cudnn
 from numpy import random
 
 from models.experimental import attempt_load
-from utils.datasets import LoadStreams, LoadImages
+from utils.datasets import LoadStreams, LoadImages, letterbox
 from utils.general import check_img_size, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, plot_one_box, strip_optimizer
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
@@ -115,20 +115,46 @@ class TritonPythonModel:
             in_0 = pb_utils.get_input_tensor_by_name(request, "INPUT0")
 
             in_0 = in_0.as_numpy()
+            in_0_shape = in_0.shape
+            print(in_0_shape)
 
-            img = torch.from_numpy(in_0).to(device)
+            # Padded resize
+            img = letterbox(in_0)[0]
+
+            # Convert
+            print(np.shape(img))
+            img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+            print(np.shape(img))
+            
+            img = np.ascontiguousarray(img)
+
+            img = torch.from_numpy(img).to(self.device)
             img = img.float()
             img /= 255.0
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
             
-            pred = model(img)[0]
+            pred = self.model(img)[0]
             pred = non_max_suppression(pred, 0.4, 0.5)
 
-            for i, det in enumerate(pred):
-                print(det)
+            detections = []
+            gn = torch.tensor(in_0_shape)[[1, 0, 1, 0]]  # normalization gain whwh
 
-            out_0 = str(det)
+            for i, det in enumerate(pred):
+              if det is not None and len(det):
+                # Rescale boxes from img_size to im0 size
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], in_0_shape).round()
+                
+                for *xyxy, conf, label in det:
+                  print(xyxy)
+                  detection = {
+                    "bbox" : (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist(),
+                    "confidence": float(conf),
+                    "label": self.names[int(label)]
+                  }
+                  detections.append(detection)
+            print(detections)
+            out_0 = str(detections)
 
             # Create output tensors. You need pb_utils.Tensor
             # objects to create pb_utils.InferenceResponse.
